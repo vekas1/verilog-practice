@@ -1,0 +1,47 @@
+// Full Adder
+module full_add(a, b, cin, s, cr);
+  input a, b, cin;
+  output s, cr;
+  wire s1, c1, c2;
+
+  half_adder h1(a, b, s1, c1);     
+  half_adder h2(s1, cin, s, c2);   
+  or r1(cr, c1, c2);               
+endmodule
+
+module half_adder(a, b, s, c);
+  input a, b;
+  output s, c;
+
+  xor x1(s, a, b);
+  and a1(c, a, b);
+endmodule
+
+module test;
+ reg a, b, cin;
+  wire s, cr;
+  
+  full_add dut(a,b,cin,s,cr);
+  
+  initial
+    begin
+    a=0; b=0; cin=0; #2;
+    a=0; b=0; cin=1; #2;
+    a=0; b=1; cin=0; #2;
+    a=0; b=1; cin=1; #2;
+    a=1; b=0; cin=0; #2;
+    a=1; b=0; cin=1; #2;
+    a=1; b=1; cin=0; #2;
+    a=1; b=1; cin=1; #2;
+    end
+  initial
+    begin
+      $monitor("a=%b, b=%b, cin=%b => sum=%b, carry=%b", a, b, cin, s, cr);
+    end
+  
+  initial
+    begin
+       $dumpfile("dump.vcd");         
+    $dumpvars(0,a,b,s,cin,cr);
+    end
+endmodule
