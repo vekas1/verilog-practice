@@ -1,0 +1,31 @@
+module half_sub(a,b,d,br);
+  input a,b;
+  output d,br;
+  
+  assign d=a^b;
+  assign br=~a&b;
+  
+  
+endmodule
+
+
+module test;
+  reg a,b;
+  wire d,br;
+  
+  half_sub dut(a,b,d,br);
+  
+  initial
+    begin
+      for(integer i=0;i<4;i=i+1)
+        begin
+          {a,b}=i;
+          #2;
+        end
+    end
+  
+  initial
+    begin
+      $monitor("Simulation time=%t,a=%b,b=%b,d=%b,br=%b",$time,a,b,d,br);
+      end
+endmodule
