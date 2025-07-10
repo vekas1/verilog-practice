@@ -1,0 +1,31 @@
+module muxn_1(i,s,y);
+  parameter n=32;
+  input [n-1:0]i;
+  input [$clog2(n)-1]s;
+  output y;
+  
+  assign y=i[s];
+  
+endmodule
+
+module test;
+  defparam dut.n=8;
+  reg[dut.n-1:0]i;
+  reg[$clog2(dut.n)-1:0]s;
+  wire y;
+  
+  muxn_1 dut(i,s,y);
+  initial
+    begin
+      i=$random;
+      repeat(20)
+        begin
+          s=$random;
+          #2;
+        end
+    end
+  initial
+    begin
+      $monitor("i=%b,s=%b,y=%b",i,s,y);
+    end
+endmodule
