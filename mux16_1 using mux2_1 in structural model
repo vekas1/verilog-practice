@@ -1,0 +1,63 @@
+module mux2_1(i0,i1,s,y);
+  input i0,i1,s;
+  output y;
+  
+  assign y=s?i1:i0;
+endmodule
+  
+  
+  
+module mux16_1 (i,s,y);
+  input  [15:0] i;
+  input  [3:0]  s;
+  output y;
+
+  wire [7:0] w1;
+  wire [3:0] w2;
+  wire [1:0] w3;
+
+  mux2_1 m0  (.i0(i[0]),  .i1(i[1]),  .s(s[0]), .y(w1[0]));
+  mux2_1 m1  (.i0(i[2]),  .i1(i[3]),  .s(s[0]), .y(w1[1]));
+  mux2_1 m2  (.i0(i[4]),  .i1(i[5]),  .s(s[0]), .y(w1[2]));
+  mux2_1 m3  (.i0(i[6]),  .i1(i[7]),  .s(s[0]), .y(w1[3]));
+  mux2_1 m4  (.i0(i[8]),  .i1(i[9]),  .s(s[0]), .y(w1[4]));
+  mux2_1 m5  (.i0(i[10]), .i1(i[11]), .s(s[0]), .y(w1[5]));
+  mux2_1 m6  (.i0(i[12]), .i1(i[13]), .s(s[0]), .y(w1[6]));
+  mux2_1 m7  (.i0(i[14]), .i1(i[15]), .s(s[0]), .y(w1[7]));
+
+  mux2_1 m8  (.i0(w1[0]), .i1(w1[1]), .s(s[1]), .y(w2[0]));
+  mux2_1 m9  (.i0(w1[2]), .i1(w1[3]), .s(s[1]), .y(w2[1]));
+  mux2_1 m10 (.i0(w1[4]), .i1(w1[5]), .s(s[1]), .y(w2[2]));
+  mux2_1 m11 (.i0(w1[6]), .i1(w1[7]), .s(s[1]), .y(w2[3]));
+
+  mux2_1 m12 (.i0(w2[0]), .i1(w2[1]), .s(s[2]), .y(w3[0]));
+  mux2_1 m13 (.i0(w2[2]), .i1(w2[3]), .s(s[2]), .y(w3[1]));
+
+  mux2_1 m14 (.i0(w3[0]), .i1(w3[1]), .s(s[3]), .y(y));
+endmodule
+
+module test;
+  reg [15:0] i;
+  reg [3:0]  s;
+  wire y;
+
+  mux16_1 dut (.i(i), .s(s), .y(y));
+  
+  integer x,count=0;
+
+  initial 
+    begin
+    i = 16'b1001_0101_0100_0100; 
+
+    
+      for (x=0;x < 16; x = x+ 1) begin
+      s = x; 
+      #2;        
+    end
+  end
+
+  initial 
+    begin
+    $monitor("Time=%0t,i=%b, s=%b,y=%b", $time, i, s, y);
+  end
+endmodule
