@@ -1,0 +1,38 @@
+module decoder (i,o);
+  input [3:0] i ;
+  output reg [1:0] o;
+  
+  always@(*)
+    begin 
+      if (i==4'b0000)
+        o=2'b00;
+      else if (i==4'b0010)
+        o=2'b01;
+      else if (i==4'b0100)
+        o=2'b10;
+      else 
+        o=2'b11;
+    end
+endmodule
+
+
+module tb;
+  reg [3:0] i;
+  wire [1:0]o;
+  
+decoder x1 (i,o);
+  
+  initial 
+    begin 
+	i=4'b0010;
+   #2 i=4'b0010;
+   #2 i=4'b0100;
+   #2 i=4'b1000;
+        
+  end
+  
+  initial 
+    begin
+    $monitor("i=%b,y=%d",i,o);
+  end
+endmodule
