@@ -1,0 +1,46 @@
+module tlatch(t,rst,clk,q);
+  input t,rst,clk;
+  output reg q=0;
+  
+  always@(t,rst,clk)
+    
+    begin
+      if(rst)
+        q<=0;
+      else
+        if(clk)
+          q<=t?~q:q;
+    end
+endmodule
+
+module test;
+  reg t,rst,clk;
+  wire q;
+  
+  tlatch dut(t,rst,clk,q);
+  
+  initial
+    begin
+      clk=1'b0;
+      rst=1;
+      # 5t=1;
+      #4 rst=0;
+      #6 t=0;
+      #5 t=1;
+      #2 t=0;
+      #6 t=1;
+      #5 $finish;
+    end
+  always
+    #5 clk=~clk;
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0,t,rst,clk,q);
+    end
+  initial
+    begin
+      $monitor("clk=%b,rst=%b,t=%b,q=%b",clk,rst,t,q);
+    end
+endmodule
+    
