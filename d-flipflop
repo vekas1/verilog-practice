@@ -1,0 +1,47 @@
+module d_ff(d,rst,clk,q);
+  input d,rst,clk;
+  output  q;
+  reg temp;
+  
+  assign q=temp;
+  always@(posedge clk)
+    
+    begin
+      if(rst)
+        temp<=0;
+      else
+          temp<=d;
+    end
+endmodule
+
+module test;
+  reg d,rst,clk,temp;
+  wire q;
+  
+  d_ff dut(d,rst,clk,q);
+  
+   always
+    #5 clk=~clk;
+  
+  initial
+    begin
+      clk=1'b0;
+      rst=1;
+      #3 d=1;
+      #3 rst=0;
+      #4 d=0;  
+      #3 d=1;
+      #10 $finish;
+    end
+ 
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0,d,rst,clk,q);
+    end
+  initial
+    begin
+      $monitor("clk=%b,rst=%b,d=%b,q=%b",clk,rst,d,q);
+    end
+endmodule
+    
