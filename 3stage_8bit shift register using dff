@@ -1,0 +1,75 @@
+
+module top_module ( 
+    input clk, 
+    input [7:0] d, 
+    input [1:0] sel, 
+    output [7:0] q 
+);
+    wire [7:0]q1,q2,q3;
+    
+    my_dff8 d1(clk,d,q1);
+    my_dff8 d2(clk,q1,q2);
+    my_dff8 d3(clk,q2,q3);
+            
+    mux4_1 x1(d,q1,q2,q3,sel,q);
+    
+endmodule
+
+
+module mux4_1 (
+    input [7:0] i0,
+    input [7:0] i1,
+    input [7:0] i2,
+    input [7:0] i3,
+    input [1:0] s,
+    output [7:0] q
+);
+    
+  assign q=(s[1]?(s[0]?i3:i2):(s[0]?i1:i0));
+    
+endmodule
+
+module my_dff8 (
+    input clk,
+    input [7:0] d,
+    output reg [7:0] q
+);
+    always @(posedge clk)
+        q <= d;
+endmodule
+
+module tb;
+    reg clk;
+    reg [7:0] d;
+    reg [1:0] sel;
+    wire [7:0] q;
+
+    top_module dut (
+        .clk(clk),
+        .d(d),
+        .sel(sel),
+        .q(q)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        d = 8'hA5;  
+        sel = 2'b00;
+ 
+        #10 sel = 2'b00; 
+        #10 sel = 2'b01;  
+        #10 sel = 2'b10; 
+        #10 sel = 2'b11;  
+
+        #20 $finish;
+    end
+
+   
+    initial begin
+        $monitor("Time=%0t | d=%b | sel=%b | q=%b", $time, d, sel, q);
+    end
+endmodule
