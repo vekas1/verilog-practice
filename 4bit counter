@@ -1,0 +1,36 @@
+module counter_4bit(clk,rst,count);;
+  input clk,rst;
+  output [3:0]count;
+  reg [3:0]temp;
+  
+  assign count=temp;
+  always@(posedge clk or posedge rst)
+    begin
+      if(rst)
+        temp<=4'b0000;
+      else
+        temp=temp+1;
+    end
+endmodule
+
+module text;
+  reg clk,rst;
+  wire [3:0]count;
+  
+  counter_4bit dut(clk,rst,count);
+  initial
+    begin
+      clk=0;
+      rst=1;
+      #7 rst=0;
+      #100 $finish;
+    end
+  always
+    #2 clk=~clk;
+  
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0,clk,rst,count);
+    end
+endmodule
