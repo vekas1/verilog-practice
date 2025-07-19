@@ -1,0 +1,127 @@
+module FIFO( clk, rst, buf_in, buf_out, wr_en, rd_en, buf_empty, buf_full, fifo_counter );
+
+input rst, clk, wr_en, rd_en;
+input [7:0] buf_in;
+output [7:0] buf_out;
+output buf_empty, buf_full;
+output [7:0] fifo_counter;
+
+reg [7:0] buf_out;
+reg buf_empty, buf_full;
+reg [6:0] fifo_counter;
+reg [5:0] rd_ptr, wr_ptr; 
+reg [7:0] buf_mem [63:0];
+
+always @(fifo_counter) begin
+    buf_empty = (fifo_counter == 0);
+    buf_full  = (fifo_counter == 64);
+end
+
+always @(posedge clk or posedge rst) begin
+    if ( rst ) 
+        fifo_counter <= 0;
+    else if ( (!buf_full && wr_en) && ( !buf_empty && rd_en ) )
+        fifo_counter <= fifo_counter;
+    else if ( !buf_full && wr_en )
+        fifo_counter <= fifo_counter + 1;
+    else if ( !buf_empty && rd_en )
+        fifo_counter <= fifo_counter - 1;
+    else
+        fifo_counter <= fifo_counter;
+end
+
+always @(posedge clk or posedge rst) begin
+    if ( rst )
+        buf_out <= 0;
+    else begin
+        if ( rd_en && !buf_empty )
+            buf_out <= buf_mem[rd_ptr];
+        else
+            buf_out <= buf_out;
+    end
+end
+
+always @(posedge clk) begin
+    if (wr_en && !buf_full)
+        buf_mem[wr_ptr] <= buf_in;
+    else
+        buf_mem[wr_ptr] <= buf_mem[wr_ptr];
+end
+
+always @(posedge clk or posedge rst) begin
+    if ( rst ) begin
+        wr_ptr <= 0;
+        rd_ptr <= 0;
+    end
+    else begin
+        if ( !buf_full && wr_en )
+            wr_ptr <= wr_ptr + 1;
+        else
+            wr_ptr <= wr_ptr;
+
+        if ( !buf_empty && rd_en )
+            rd_ptr <= rd_ptr + 1;
+        else
+            rd_ptr <= rd_ptr;
+    end
+end
+
+endmodule
+
+`timescale 1ns/1ps
+
+module FIFO_tb;
+  
+  reg clk, rst, wr_en, rd_en;
+  reg [7:0] buf_in;
+  wire [7:0] buf_out;
+  wire buf_empty, buf_full;
+  wire [7:0] fifo_counter;
+
+  FIFO dut (clk, rst, buf_in, buf_out, wr_en, rd_en, buf_empty, buf_full, fifo_counter
+  );
+
+  always #5 clk = ~clk;
+
+  initial begin
+    
+    $monitor("Time=%0t clk=%b rst=%b wr_en=%b rd_en=%b buf_in=%h buf_out=%h empty=%b full=%b count=%d",$time, clk, rst, wr_en, rd_en, buf_in, buf_out, buf_empty, buf_full, fifo_counter);
+
+    clk = 0;
+    rst = 1;
+    wr_en = 0;
+    rd_en = 0;
+    buf_in = 8'd0;
+
+    #10 rst = 0;
+
+    repeat(64) begin
+      @(posedge clk);
+      if (!buf_full) begin
+        wr_en = 1;
+        rd_en = 0;
+        buf_in = buf_in + 1;
+      end
+    end
+    wr_en = 0;
+
+    repeat(64) begin
+      @(posedge clk);
+      if (!buf_empty) begin
+        wr_en = 0;
+        rd_en = 1;
+      end
+    end
+    rd_en = 0;
+    
+    @(posedge clk);
+    $display("FIFO Test Completed");
+    $finish;
+  end
+ initial begin
+  $dumpfile("dump.vcd");
+   $dumpvars(0, clk, rst, buf_in, buf_out, wr_en, rd_en, buf_empty,   						buf_full,fifo_counter);
+	end
+
+endmodule
+
